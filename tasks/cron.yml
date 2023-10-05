@@ -1,18 +1,18 @@
 ---
 - block:
     - name: Ensure cron is installed for Redhat
-      package:
+      ansible.builtin.package:
         name: cronie
         state: present
       when: ansible_os_family == 'RedHat'
 
     - name: Create cron config
-      template:
+      ansible.builtin.template:
         src: plexupdate/plexupdate.cron.conf.j2
         dest: "/etc/plexupdate.cron.conf"
 
     - name: Create cron job
-      file:
+      ansible.builtin.file:
         src: "{{ plexupdate_install_location }}/extras/cronwrapper"
         dest: "/etc/cron.{{ plexupdate_interval }}/plexupdate"
         state: link
@@ -21,13 +21,13 @@
 
 - block:
     - name: Start and enable crond
-      service:
+      ansible.builtin.service:
         name: crond
         state: started
         enabled: true
 
     - name: Create cron job
-      file:
+      ansible.builtin.file:
         src: "{{ plexupdate_install_location }}/extras/cronwrapper"
         dest: "/etc/periodic/{{ plexupdate_interval }}"
         state: link

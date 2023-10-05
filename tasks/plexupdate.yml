@@ -9,18 +9,18 @@
     - git
 
 - name: Clone plexupdate repository
-  git:
+  ansible.builtin.git:
     repo: https://github.com/mrworf/plexupdate.git
     dest: "{{ plexupdate_install_location }}"
     version: "{{ plexupdate_version }}"
 
 - name: Create desired config
-  template:
+  ansible.builtin.template:
     src: plexupdate/plexupdate.conf.j2
     dest: "{{ plexupdate_config_location }}"
 
 - name: Install latest plex with plexupdate
-  command: "{{ plexupdate_install_location }}/plexupdate.sh --config {{ plexupdate_config_location }}"
+  ansible.builtin.command: "{{ plexupdate_install_location }}/plexupdate.sh --config {{ plexupdate_config_location }}"
   environment:
     DEBIAN_FRONTEND: noninteractive
   changed_when: "'already installed' not in plexupdate_output.stdout"
@@ -28,7 +28,7 @@
   notify: restart plex
 
 - name: Reload systemD daemon
-  systemd:
+  ansible.builtin.systemd_service:
     name: plexmediaserver
     daemon_reload: true
   when: (ansible_distribution == 'CentOS' and ansible_distribution_major_version == "7") or
@@ -36,7 +36,7 @@
         (ansible_distribution == 'Debian' and ansible_distribution_major_version|int >= 8)
 
 - name: Autostart Plex
-  service:
+  ansible.builtin.service:
     name: plexmediaserver
     enabled: true
   notify: restart plex
